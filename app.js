@@ -11,6 +11,8 @@ const content = document.querySelector("#content");
 let currentPage = "groups";
 let selectedGroup = Object.keys(GROUPS)[0] || "Group A";
 let selectedPredictTab = Object.keys(SCHEDULE)[0] || "11 Jun";
+let groupsScrollX = 0;
+let datesScrollX = 0;
 let activeScoreTarget = null;
 
 const state = JSON.parse(localStorage.getItem("wc2026_state_v1") || "{}");
@@ -85,6 +87,15 @@ function render(){
 function renderGroups(){
   const groupNames=Object.keys(GROUPS); if(!groupNames.includes(selectedGroup)) selectedGroup=groupNames[0]; const tab=tables()[selectedGroup]||[];
   content.innerHTML=`<section class="screen"><div class="card hero"><div class="small">FIFA WORLD CUP</div><div class="big">UNITED 2026</div><div class="host">CANADA · USA · MEXICO</div></div><div class="pills">${groupNames.map(g=>`<button class="pill ${g===selectedGroup?'active':''}" data-group="${g}">${g}</button>`).join('')}</div><div class="card"><div class="table"><div class="th">#</div><div></div><div class="th" style="text-align:left">Team</div><div class="th">P</div><div class="th">W</div><div class="th">D</div><div class="th">L</div><div class="th">GD</div><div class="th">PTS</div>${tab.map((t,i)=>`<div class="pos ${i<2?'q1':i===2?'q3':''}">${i+1}</div><img class="flag" src="${flagSrc(t.code)}"><div class="team-name">${t.name}</div><div class="cell">${t.P}</div><div class="cell">${t.W}</div><div class="cell">${t.D}</div><div class="cell">${t.L}</div><div class="cell">${t.GD}</div><div class="cell pts">${t.PTS}</div>`).join('')}</div></div><div class="card legend"><div style="color:var(--green)">Direct qualification to knockout stage</div><div style="color:var(--gold)">Possible qualification as best third-placed team</div></div></section>`;
+  const pills = document.querySelector(".pills");
+
+if (pills) {
+  pills.scrollLeft = groupsScrollX;
+
+  pills.addEventListener("scroll", () => {
+    groupsScrollX = pills.scrollLeft;
+  });
+}
   document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>{selectedGroup=b.dataset.group;renderGroups();setTimeout(enableDragScroll,0);});
 }
 function renderPredict(){
@@ -96,6 +107,15 @@ function renderPredict(){
     const pairs=buildRounds()[selectedPredictTab]||[]; body=pairs.map((p,i)=>koPredictCard(selectedPredictTab,i,p[0],p[1])).join('') || `<div class="card locked">Заверши предыдущий этап</div>`;
   }
   content.innerHTML=`<section class="screen"><div class="title">Predictions</div><div class="pills">${tabs.map(t=>`<button class="pill ${t===selectedPredictTab?'active':''}" data-tab="${t}">${t}${pointsForDate(t)?` +${pointsForDate(t)}`:''}</button>`).join('')}</div><div class="sub">${selectedPredictTab}${SCHEDULE[selectedPredictTab]?' 2026':''}</div><div class="points">Потенциальные очки: +${pointsForDate(selectedPredictTab)}</div>${body}</section>`;
+  const pills = document.querySelector(".pills");
+
+if (pills) {
+  pills.scrollLeft = datesScrollX;
+
+  pills.addEventListener("scroll", () => {
+    datesScrollX = pills.scrollLeft;
+  });
+}
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{selectedPredictTab=b.dataset.tab;renderPredict();setTimeout(enableDragScroll,0);}); bindInputs();
 }
 function matchCard(m){ const k=key(m.group,m.team1.name,m.team2.name); const s=state.groupScores[k]||["",""]; const filled=safeInt(s[0])!==null&&safeInt(s[1])!==null;
