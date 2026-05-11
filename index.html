@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>World Cup 2026</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <h1>World Cup 2026</h1>
+      <div class="nav">
+        <button class="active" data-page="groups">Groups</button>
+        <button data-page="predict">Predict</button>
+        <button data-page="playoffs">Playoffs</button>
+      </div>
+    </div>
+    <main id="content"></main>
+  </div>
+
+  <div id="numpad" class="modal hidden">
+    <div class="sheet numpad-sheet">
+      <div class="numpad-grid">
+        <button>1</button><button>2</button><button>3</button>
+        <button>4</button><button>5</button><button>6</button>
+        <button>7</button><button>8</button><button>9</button>
+        <button data-action="clear">Очистить</button><button>0</button><button data-action="back">⌫</button>
+      </div>
+      <button class="close" data-action="done">Готово</button>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
