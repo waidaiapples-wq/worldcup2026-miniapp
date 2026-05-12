@@ -218,822 +218,132 @@ window.WC_DATA = {
     ]
   },
   "schedule": {
-    "11 Jun": [
-      [
-        "Group A",
-        [
-          "Mexico",
-          "mx"
-        ],
-        [
-          "South Africa",
-          "za"
-        ]
-      ]
-    ],
-    "12 Jun": [
-      [
-        "Group B",
-        [
-          "Canada",
-          "ca"
-        ],
-        [
-          "Qatar",
-          "qa"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "United States",
-          "us"
-        ],
-        [
-          "Paraguay",
-          "py"
-        ]
-      ]
-    ],
-    "13 Jun": [
-      [
-        "Group B",
-        [
-          "Bosnia and Herzegovina",
-          "ba"
-        ],
-        [
-          "Switzerland",
-          "ch"
-        ]
-      ],
-      [
-        "Group C",
-        [
-          "Brazil",
-          "br"
-        ],
-        [
-          "Morocco",
-          "ma"
-        ]
-      ],
-      [
-        "Group C",
-        [
-          "Haiti",
-          "ht"
-        ],
-        [
-          "Scotland",
-          "gb-sct"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "Australia",
-          "au"
-        ],
-        [
-          "Turkey",
-          "tr"
-        ]
-      ]
-    ],
-    "14 Jun": [
-      [
-        "Group E",
-        [
-          "Germany",
-          "de"
-        ],
-        [
-          "Curaçao",
-          "cw"
-        ]
-      ],
-      [
-        "Group E",
-        [
-          "Ivory Coast",
-          "ci"
-        ],
-        [
-          "Ecuador",
-          "ec"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Netherlands",
-          "nl"
-        ],
-        [
-          "Japan",
-          "jp"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Sweden",
-          "se"
-        ],
-        [
-          "Tunisia",
-          "tn"
-        ]
-      ]
-    ],
-    "15 Jun": [
-      [
-        "Group G",
-        [
-          "Belgium",
-          "be"
-        ],
-        [
-          "Egypt",
-          "eg"
-        ]
-      ],
-      [
-        "Group G",
-        [
-          "Iran",
-          "ir"
-        ],
-        [
-          "New Zealand",
-          "nz"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Spain",
-          "es"
-        ],
-        [
-          "Cape Verde",
-          "cv"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Saudi Arabia",
-          "sa"
-        ],
-        [
-          "Uruguay",
-          "uy"
-        ]
-      ]
-    ],
-    "16 Jun": [
-      [
-        "Group I",
-        [
-          "France",
-          "fr"
-        ],
-        [
-          "Senegal",
-          "sn"
-        ]
-      ],
-      [
-        "Group I",
-        [
-          "Iraq",
-          "iq"
-        ],
-        [
-          "Norway",
-          "no"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Argentina",
-          "ar"
-        ],
-        [
-          "Algeria",
-          "dz"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Austria",
-          "at"
-        ],
-        [
-          "Jordan",
-          "jo"
-        ]
-      ]
-    ],
-    "17 Jun": [
-      [
-        "Group K",
-        [
-          "Portugal",
-          "pt"
-        ],
-        [
-          "DR Congo",
-          "cd"
-        ]
-      ],
-      [
-        "Group K",
-        [
-          "Uzbekistan",
-          "uz"
-        ],
-        [
-          "Colombia",
-          "co"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "England",
-          "gb-eng"
-        ],
-        [
-          "Croatia",
-          "hr"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "Ghana",
-          "gh"
-        ],
-        [
-          "Panama",
-          "pa"
-        ]
-      ]
-    ],
-    "18 Jun": [
-      [
-        "Group A",
-        [
-          "Mexico",
-          "mx"
-        ],
-        [
-          "South Korea",
-          "kr"
-        ]
-      ],
-      [
-        "Group A",
-        [
-          "South Africa",
-          "za"
-        ],
-        [
-          "Czechia",
-          "cz"
-        ]
-      ],
-      [
-        "Group B",
-        [
-          "Canada",
-          "ca"
-        ],
-        [
-          "Bosnia and Herzegovina",
-          "ba"
-        ]
-      ],
-      [
-        "Group B",
-        [
-          "Qatar",
-          "qa"
-        ],
-        [
-          "Switzerland",
-          "ch"
-        ]
-      ]
-    ],
-    "19 Jun": [
-      [
-        "Group C",
-        [
-          "Brazil",
-          "br"
-        ],
-        [
-          "Haiti",
-          "ht"
-        ]
-      ],
-      [
-        "Group C",
-        [
-          "Morocco",
-          "ma"
-        ],
-        [
-          "Scotland",
-          "gb-sct"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "United States",
-          "us"
-        ],
-        [
-          "Australia",
-          "au"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "Paraguay",
-          "py"
-        ],
-        [
-          "Turkey",
-          "tr"
-        ]
-      ]
-    ],
-    "20 Jun": [
-      [
-        "Group E",
-        [
-          "Germany",
-          "de"
-        ],
-        [
-          "Ivory Coast",
-          "ci"
-        ]
-      ],
-      [
-        "Group E",
-        [
-          "Curaçao",
-          "cw"
-        ],
-        [
-          "Ecuador",
-          "ec"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Netherlands",
-          "nl"
-        ],
-        [
-          "Sweden",
-          "se"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Japan",
-          "jp"
-        ],
-        [
-          "Tunisia",
-          "tn"
-        ]
-      ]
-    ],
-    "21 Jun": [
-      [
-        "Group G",
-        [
-          "Belgium",
-          "be"
-        ],
-        [
-          "Iran",
-          "ir"
-        ]
-      ],
-      [
-        "Group G",
-        [
-          "Egypt",
-          "eg"
-        ],
-        [
-          "New Zealand",
-          "nz"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Spain",
-          "es"
-        ],
-        [
-          "Saudi Arabia",
-          "sa"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Cape Verde",
-          "cv"
-        ],
-        [
-          "Uruguay",
-          "uy"
-        ]
-      ]
-    ],
-    "22 Jun": [
-      [
-        "Group I",
-        [
-          "France",
-          "fr"
-        ],
-        [
-          "Iraq",
-          "iq"
-        ]
-      ],
-      [
-        "Group I",
-        [
-          "Senegal",
-          "sn"
-        ],
-        [
-          "Norway",
-          "no"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Argentina",
-          "ar"
-        ],
-        [
-          "Austria",
-          "at"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Algeria",
-          "dz"
-        ],
-        [
-          "Jordan",
-          "jo"
-        ]
-      ]
-    ],
-    "23 Jun": [
-      [
-        "Group K",
-        [
-          "Portugal",
-          "pt"
-        ],
-        [
-          "Uzbekistan",
-          "uz"
-        ]
-      ],
-      [
-        "Group K",
-        [
-          "DR Congo",
-          "cd"
-        ],
-        [
-          "Colombia",
-          "co"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "England",
-          "gb-eng"
-        ],
-        [
-          "Ghana",
-          "gh"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "Croatia",
-          "hr"
-        ],
-        [
-          "Panama",
-          "pa"
-        ]
-      ]
-    ],
-    "24 Jun": [
-      [
-        "Group A",
-        [
-          "Mexico",
-          "mx"
-        ],
-        [
-          "Czechia",
-          "cz"
-        ]
-      ],
-      [
-        "Group A",
-        [
-          "South Africa",
-          "za"
-        ],
-        [
-          "South Korea",
-          "kr"
-        ]
-      ],
-      [
-        "Group B",
-        [
-          "Canada",
-          "ca"
-        ],
-        [
-          "Switzerland",
-          "ch"
-        ]
-      ],
-      [
-        "Group B",
-        [
-          "Bosnia and Herzegovina",
-          "ba"
-        ],
-        [
-          "Qatar",
-          "qa"
-        ]
-      ]
-    ],
-    "25 Jun": [
-      [
-        "Group C",
-        [
-          "Brazil",
-          "br"
-        ],
-        [
-          "Scotland",
-          "gb-sct"
-        ]
-      ],
-      [
-        "Group C",
-        [
-          "Morocco",
-          "ma"
-        ],
-        [
-          "Haiti",
-          "ht"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "United States",
-          "us"
-        ],
-        [
-          "Turkey",
-          "tr"
-        ]
-      ],
-      [
-        "Group D",
-        [
-          "Paraguay",
-          "py"
-        ],
-        [
-          "Australia",
-          "au"
-        ]
-      ],
-      [
-        "Group E",
-        [
-          "Germany",
-          "de"
-        ],
-        [
-          "Ecuador",
-          "ec"
-        ]
-      ],
-      [
-        "Group E",
-        [
-          "Curaçao",
-          "cw"
-        ],
-        [
-          "Ivory Coast",
-          "ci"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Netherlands",
-          "nl"
-        ],
-        [
-          "Tunisia",
-          "tn"
-        ]
-      ],
-      [
-        "Group F",
-        [
-          "Japan",
-          "jp"
-        ],
-        [
-          "Sweden",
-          "se"
-        ]
-      ]
-    ],
-    "26 Jun": [
-      [
-        "Group G",
-        [
-          "Belgium",
-          "be"
-        ],
-        [
-          "New Zealand",
-          "nz"
-        ]
-      ],
-      [
-        "Group G",
-        [
-          "Egypt",
-          "eg"
-        ],
-        [
-          "Iran",
-          "ir"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Spain",
-          "es"
-        ],
-        [
-          "Uruguay",
-          "uy"
-        ]
-      ],
-      [
-        "Group H",
-        [
-          "Cape Verde",
-          "cv"
-        ],
-        [
-          "Saudi Arabia",
-          "sa"
-        ]
-      ],
-      [
-        "Group I",
-        [
-          "France",
-          "fr"
-        ],
-        [
-          "Norway",
-          "no"
-        ]
-      ],
-      [
-        "Group I",
-        [
-          "Senegal",
-          "sn"
-        ],
-        [
-          "Iraq",
-          "iq"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Argentina",
-          "ar"
-        ],
-        [
-          "Jordan",
-          "jo"
-        ]
-      ],
-      [
-        "Group J",
-        [
-          "Algeria",
-          "dz"
-        ],
-        [
-          "Austria",
-          "at"
-        ]
-      ]
-    ],
-    "27 Jun": [
-      [
-        "Group K",
-        [
-          "Portugal",
-          "pt"
-        ],
-        [
-          "Colombia",
-          "co"
-        ]
-      ],
-      [
-        "Group K",
-        [
-          "DR Congo",
-          "cd"
-        ],
-        [
-          "Uzbekistan",
-          "uz"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "England",
-          "gb-eng"
-        ],
-        [
-          "Panama",
-          "pa"
-        ]
-      ],
-      [
-        "Group L",
-        [
-          "Croatia",
-          "hr"
-        ],
-        [
-          "Ghana",
-          "gh"
-        ]
-      ]
-    ]
-  },
+  "11 Jun": [
+    ["Group A", ["Mexico","mx"], ["South Africa","za"], "22:00"]
+  ],
+
+  "12 Jun": [
+    ["Group A", ["South Korea","kr"], ["Czechia","cz"], "05:00"],
+    ["Group B", ["Canada","ca"], ["Bosnia and Herzegovina","ba"], "22:00"]
+  ],
+
+  "13 Jun": [
+    ["Group D", ["United States","us"], ["Paraguay","py"], "04:00"],
+    ["Group B", ["Qatar","qa"], ["Switzerland","ch"], "22:00"]
+  ],
+
+  "14 Jun": [
+    ["Group C", ["Brazil","br"], ["Morocco","ma"], "01:00"],
+    ["Group C", ["Haiti","ht"], ["Scotland","gb-sct"], "04:00"],
+    ["Group D", ["Australia","au"], ["Turkey","tr"], "07:00"],
+    ["Group E", ["Germany","de"], ["Curaçao","cw"], "20:00"],
+    ["Group F", ["Netherlands","nl"], ["Japan","jp"], "23:00"]
+  ],
+
+  "15 Jun": [
+    ["Group E", ["Ivory Coast","ci"], ["Ecuador","ec"], "02:00"],
+    ["Group F", ["Sweden","se"], ["Tunisia","tn"], "05:00"],
+    ["Group H", ["Spain","es"], ["Cape Verde","cv"], "19:00"],
+    ["Group G", ["Belgium","be"], ["Egypt","eg"], "22:00"]
+  ],
+
+  "16 Jun": [
+    ["Group H", ["Saudi Arabia","sa"], ["Uruguay","uy"], "01:00"],
+    ["Group G", ["Iran","ir"], ["New Zealand","nz"], "04:00"],
+    ["Group I", ["France","fr"], ["Senegal","sn"], "22:00"]
+  ],
+
+  "17 Jun": [
+    ["Group I", ["Iraq","iq"], ["Norway","no"], "01:00"],
+    ["Group J", ["Argentina","ar"], ["Algeria","dz"], "04:00"],
+    ["Group J", ["Austria","at"], ["Jordan","jo"], "07:00"],
+    ["Group K", ["Portugal","pt"], ["DR Congo","cd"], "20:00"],
+    ["Group L", ["England","gb-eng"], ["Croatia","hr"], "23:00"]
+  ],
+
+  "18 Jun": [
+    ["Group L", ["Ghana","gh"], ["Panama","pa"], "02:00"],
+    ["Group K", ["Uzbekistan","uz"], ["Colombia","co"], "05:00"],
+    ["Group A", ["Czechia","cz"], ["South Africa","za"], "19:00"],
+    ["Group B", ["Switzerland","ch"], ["Bosnia and Herzegovina","ba"], "22:00"]
+  ],
+
+  "19 Jun": [
+    ["Group B", ["Canada","ca"], ["Qatar","qa"], "01:00"],
+    ["Group A", ["Mexico","mx"], ["South Korea","kr"], "04:00"],
+    ["Group D", ["United States","us"], ["Australia","au"], "22:00"]
+  ],
+
+  "20 Jun": [
+    ["Group C", ["Scotland","gb-sct"], ["Morocco","ma"], "01:00"],
+    ["Group C", ["Brazil","br"], ["Haiti","ht"], "04:00"],
+    ["Group D", ["Turkey","tr"], ["Paraguay","py"], "07:00"],
+    ["Group F", ["Netherlands","nl"], ["Sweden","se"], "20:00"],
+    ["Group E", ["Germany","de"], ["Ivory Coast","ci"], "23:00"]
+  ],
+
+  "21 Jun": [
+    ["Group E", ["Ecuador","ec"], ["Curaçao","cw"], "03:00"],
+    ["Group F", ["Tunisia","tn"], ["Japan","jp"], "07:00"],
+    ["Group H", ["Spain","es"], ["Saudi Arabia","sa"], "19:00"],
+    ["Group G", ["Belgium","be"], ["Iran","ir"], "22:00"]
+  ],
+
+  "22 Jun": [
+    ["Group H", ["Uruguay","uy"], ["Cape Verde","cv"], "01:00"],
+    ["Group G", ["New Zealand","nz"], ["Egypt","eg"], "04:00"],
+    ["Group J", ["Argentina","ar"], ["Austria","at"], "20:00"]
+  ],
+
+  "23 Jun": [
+    ["Group I", ["France","fr"], ["Iraq","iq"], "00:00"],
+    ["Group I", ["Norway","no"], ["Senegal","sn"], "03:00"],
+    ["Group J", ["Jordan","jo"], ["Algeria","dz"], "06:00"],
+    ["Group K", ["Portugal","pt"], ["Uzbekistan","uz"], "20:00"],
+    ["Group L", ["England","gb-eng"], ["Ghana","gh"], "23:00"]
+  ],
+
+  "24 Jun": [
+    ["Group L", ["Panama","pa"], ["Croatia","hr"], "02:00"],
+    ["Group K", ["Colombia","co"], ["DR Congo","cd"], "05:00"],
+    ["Group B", ["Switzerland","ch"], ["Canada","ca"], "22:00"],
+    ["Group B", ["Bosnia and Herzegovina","ba"], ["Qatar","qa"], "22:00"]
+  ],
+
+  "25 Jun": [
+    ["Group C", ["Scotland","gb-sct"], ["Brazil","br"], "01:00"],
+    ["Group C", ["Morocco","ma"], ["Haiti","ht"], "01:00"],
+    ["Group A", ["Czechia","cz"], ["Mexico","mx"], "04:00"],
+    ["Group A", ["South Africa","za"], ["South Korea","kr"], "04:00"],
+    ["Group E", ["Curaçao","cw"], ["Ivory Coast","ci"], "23:00"],
+    ["Group E", ["Ecuador","ec"], ["Germany","de"], "23:00"]
+  ],
+
+  "26 Jun": [
+    ["Group F", ["Japan","jp"], ["Sweden","se"], "02:00"],
+    ["Group F", ["Tunisia","tn"], ["Netherlands","nl"], "02:00"],
+    ["Group D", ["Turkey","tr"], ["United States","us"], "05:00"],
+    ["Group D", ["Paraguay","py"], ["Australia","au"], "05:00"],
+    ["Group I", ["Norway","no"], ["France","fr"], "22:00"],
+    ["Group I", ["Senegal","sn"], ["Iraq","iq"], "22:00"]
+  ],
+
+  "27 Jun": [
+    ["Group H", ["Cape Verde","cv"], ["Saudi Arabia","sa"], "03:00"],
+    ["Group H", ["Uruguay","uy"], ["Spain","es"], "03:00"],
+    ["Group G", ["Egypt","eg"], ["Iran","ir"], "06:00"],
+    ["Group G", ["New Zealand","nz"], ["Belgium","be"], "06:00"]
+  ],
+
+  "28 Jun": [
+    ["Group L", ["Panama","pa"], ["England","gb-eng"], "00:00"],
+    ["Group L", ["Croatia","hr"], ["Ghana","gh"], "00:00"],
+    ["Group K", ["Colombia","co"], ["Portugal","pt"], "02:30"],
+    ["Group K", ["DR Congo","cd"], ["Uzbekistan","uz"], "02:30"],
+    ["Group J", ["Algeria","dz"], ["Austria","at"], "05:00"],
+    ["Group J", ["Jordan","jo"], ["Argentina","ar"], "05:00"]
+  ]
+},
   "questions": {
     "Mexico__South Africa": [
       "Будет ли первый гол забит после ошибки защитника или вратаря?",
@@ -2780,3 +2090,11 @@ window.WC_DATA = {
     "Final"
   ]
 };
+
+
+window.GROUPS = window.WC_DATA.groups;
+window.SCHEDULE = window.WC_DATA.schedule;
+window.QUESTIONS_BY_MATCH = window.WC_DATA.questions;
+window.TEAM_ROSTERS = window.WC_DATA.lineups;
+window.TEAM_RU_NAMES = window.WC_DATA.teamRuNames;
+window.FLAGS = window.WC_DATA.flags || {};
