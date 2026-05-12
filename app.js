@@ -12,41 +12,7 @@ if (tg) {
   tg.setBackgroundColor("#061713");
 }
 
-document.addEventListener(
-  "touchmove",
-  function (e) {
-    const scrollable = e.target.closest(".app, .screen, .sheet");
 
-    if (!scrollable) {
-      e.preventDefault();
-    }
-  },
-  { passive: false }
-);
-const tg = window.Telegram?.WebApp;
-
-if (tg) {
-  tg.ready();
-  tg.expand();
-
-  // Фикс закрытия Mini App свайпом
-  if (tg.disableVerticalSwipes) {
-    tg.disableVerticalSwipes();
-  }
-
-  tg.setHeaderColor("#061713");
-  tg.setBackgroundColor("#061713");
-}
-const tg = window.Telegram?.WebApp;
-
-if (tg) {
-  tg.ready();
-  tg.expand();
-
-  if (tg.disableVerticalSwipes) {
-    tg.disableVerticalSwipes();
-  }
-}
 const DATA = window.WC_DATA || {};
 const GROUPS = DATA.groups || {};
 const SCHEDULE = DATA.schedule || {};
