@@ -304,3 +304,77 @@ body {
   border-bottom-color: transparent;
   box-shadow: 0 8px 24px rgba(221, 187, 112, 0.16);
 }
+.leader-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 70px;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  margin: 8px 0;
+  border-radius: 18px;
+  background: rgba(246,242,232,.06);
+  border: 1px solid rgba(190,230,205,.10);
+  font-weight: 900;
+}
+
+.leader-row.active {
+  background: rgba(221,187,112,.16);
+  border-color: rgba(221,187,112,.35);
+  box-shadow: 0 10px 28px rgba(221,187,112,.10);
+}
+
+.leader-rank {
+  color: var(--gold);
+}
+
+.leader-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leader-points {
+  color: var(--green);
+  text-align: right;
+}
+.profile-avatar{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  object-fit:cover;
+  margin:14px auto;
+  display:block;
+  border:3px solid rgba(221,187,112,.45);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.profile-avatar.empty{
+  background:rgba(255,255,255,.08);
+}
+html,
+body {
+  position: static !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  touch-action: auto !important;
+}
+
+.app {
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow: visible !important;
+  touch-action: auto !important;
+}
+
+.nav,
+.pills,
+.bracket-scroll {
+  touch-action: pan-x !important;
+}
+
+button {
+  pointer-events: auto !important;
+}

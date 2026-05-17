@@ -1,4 +1,35 @@
 const tg = window.Telegram?.WebApp;
+const tgUser = tg?.initDataUnsafe?.user || null;
+const SUPABASE_URL =
+  "https://vzmhwtgklonmoxmbaqwr.supabase.co";
+
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bWh3dGdrbG9ubW94bWJhcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDgyMjEsImV4cCI6MjA5NDU4NDIyMX0.NtJyCzS516ECAldWurUv2b6swBAm3j_cb4hoRusnxNg";
+const BACKEND_URL = "http://127.0.0.1:3000";
+let db = null;
+
+window.addEventListener("load", () => {
+
+  if (window.supabase) {
+
+    db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    console.log("SUPABASE READY");
+
+    syncTelegramUser();
+
+  } else {
+
+    console.error("SUPABASE NOT FOUND");
+
+  }
+
+  render();
+
+});
 
 if (tg) {
   tg.ready();
@@ -11,13 +42,46 @@ if (tg) {
   tg.setHeaderColor("#061713");
   tg.setBackgroundColor("#061713");
 }
+const USER = {
+  id: tgUser?.id || null,
+  username: tgUser?.username || "",
+  firstName: tgUser?.first_name || "Guest",
+  lastName: tgUser?.last_name || "",
+  photo: tgUser?.photo_url || ""
+};
+
+window.USER = USER;
+async function syncTelegramUser() {
+
+  if (!USER.id || !db) return;
+
+  const { error } = await db
+    .from("users")
+    .upsert({
+      id: USER.id,
+      username: USER.username,
+      first_name: USER.firstName,
+      last_name: USER.lastName,
+      photo_url: USER.photo
+    });
+
+  if (error) {
+    console.error("SUPABASE USER ERROR", error);
+  } else {
+    console.log("USER SYNCED");
+  }
+}
+
+syncTelegramUser();
 
 
 const DATA = window.WC_DATA || {};
 const GROUPS = DATA.groups || {};
 const SCHEDULE = DATA.schedule || {};
 const QUESTIONS = DATA.questions || {};
+const QUESTION_POOLS = window.QUESTION_POOLS || {};
 const LINEUPS = DATA.lineups || {};
+const SPECIAL_PLAYERS = window.SPECIAL_PLAYERS || {};
 const TEAM_RU = DATA.teamRuNames || {};
 const ROUND_SCHEMA = DATA.roundOf32Schema || [];
 const ROUND_NAMES = DATA.roundNames || ["1/16", "1/8", "1/4", "1/2", "Final"];
@@ -35,7 +99,70 @@ state.groupScores ||= {};
 state.koScores ||= {"1/16":{},"1/8":{},"1/4":{},"1/2":{},"Final":{}};
 state.answers ||= {};
 
-function save(){ localStorage.setItem("wc2026_state_v1", JSON.stringify(state)); }
+function save(){
+  localStorage.setItem("wc2026_state_v1", JSON.stringify(state));
+  savePredictionsToSupabase();
+}
+let saveTimer = null;
+
+function savePredictionsToSupabase(){
+
+  if (!USER.id || !db) return;
+
+  clearTimeout(saveTimer);
+
+  saveTimer = setTimeout(async () => {
+
+    const rows = [];
+
+    Object.entries(state.groupScores || {}).forEach(([matchKey, score]) => {
+
+      const parts = matchKey.split("__");
+
+      const team1 = parts[1] || "";
+      const team2 = parts[2] || "";
+
+      rows.push({
+        user_id: USER.id,
+        match_key: matchKey,
+        team1,
+        team2,
+        score1: score[0] === "" ? null : Number(score[0]),
+        score2: score[1] === "" ? null : Number(score[1]),
+        answers: getAnswersForMatch(team1, team2),
+        points: 0
+      });
+
+    });
+
+    const { error } = await db
+      .from("predictions")
+      .upsert(rows, {
+        onConflict: "user_id,match_key"
+      });
+
+    if (error) {
+      console.error("SUPABASE PREDICTIONS ERROR", error);
+    } else {
+      console.log("PREDICTIONS SAVED");
+    }
+
+  }, 700);
+}
+function getAnswersForMatch(team1, team2){
+  const result = {};
+
+  Object.entries(state.answers || {}).forEach(([answerKey, value]) => {
+    const parts = answerKey.split("__");
+
+    if (parts[0] === team1 && parts[1] === team2) {
+      const question = parts.slice(2).join("__");
+      result[question] = value;
+    }
+  });
+
+  return result;
+}
 function teamName(t){ return Array.isArray(t) ? t[0] : (t.name || t); }
 function teamCode(t){ return Array.isArray(t) ? t[1] : (t.code || ""); }
 function teamRu(t){ return TEAM_RU[t] || t; }
@@ -96,7 +223,12 @@ function predictTabs(){ const tabs=Object.keys(SCHEDULE); if(allGroupsFilled()) 
 
 function render(){
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active", b.dataset.page===currentPage));
-  if(currentPage==="groups") renderGroups(); else if(currentPage==="predict") renderPredict(); else renderPlayoffs();
+
+  if(currentPage === "groups") renderGroups();
+  else if(currentPage === "predict") renderPredict();
+  else if(currentPage === "playoffs") renderPlayoffs();
+  else if(currentPage === "leaderboard") renderLeaderboard();
+
   setTimeout(enableDragScroll,0);
 }
 function renderGroups(){
@@ -136,10 +268,89 @@ if (pills) {
 function matchCard(m){ const k=key(m.group,m.team1.name,m.team2.name); const s=state.groupScores[k]||["",""]; const filled=safeInt(s[0])!==null&&safeInt(s[1])!==null;
   return `<div class="card"><div class="match-head">${m.group}</div><div class="match-time">${matchTime(m.date,m.idx,m.count)}</div><div class="match-row"><div class="team"><img class="flag" src="${flagSrc(m.team1.code)}"><div>${m.team1.name}</div></div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="group" data-key="${k}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="group" data-key="${k}" data-index="1"></div><div class="hint">Нажми на счёт</div></div><div class="team"><img class="flag" src="${flagSrc(m.team2.code)}"><div>${m.team2.name}</div></div></div><div class="save">Сохраняется автоматически</div>${filled?extraPredictions(m.team1.name,m.team2.name):''}</div>`; }
 function koPredictCard(r,i,a,b){ state.koScores[r] ||= {}; state.koScores[r][i] ||= ["", "", "", ""]; const s=state.koScores[r][i]; const draw=safeInt(s[0])!==null&&safeInt(s[0])===safeInt(s[1]);
-  return `<div class="card"><div class="match-head">${r} • Match ${i+1}</div><div class="match-row"><div class="team">${teamVisual(a,62)}</div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="1"></div><div class="hint">Нажми на счёт</div>${draw?`<div class="pens"><input readonly placeholder="•" value="${s[2]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="2"><span class="dash">-</span><input readonly placeholder="•" value="${s[3]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="3"></div>`:''}</div><div class="team">${teamVisual(b,62)}</div></div><div class="save">Сохраняется автоматически</div>${safeInt(s[0])!==null&&safeInt(s[1])!==null?extraPredictions(a.name,b.name,true):''}</div>`; }
+  return `<div class="card"><div class="match-head">${r} • Match ${i+1}</div><div class="match-row"><div class="team">${teamVisual(a,62)}</div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="1"></div><div class="hint">Нажми на счёт</div>${draw?`<div class="pens"><input readonly placeholder="•" value="${s[2]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="2"><span class="dash">-</span><input readonly placeholder="•" value="${s[3]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="3"></div>`:''}</div><div class="team">${teamVisual(b,62)}</div></div><div class="save">Сохраняется автоматически</div>${safeInt(s[0])!==null&&safeInt(s[1])!==null?extraPredictions(a.name, b.name, r):''}</div>`; }
 function teamVisual(t,size=30){ return `${t.code?`<img class="flag" style="width:${size}px;height:${size}px" src="${flagSrc(t.code)}">`:`<div class="empty-dot" style="width:${size}px;height:${size}px"></div>`}<div>${t.name}</div>`; }
-function questionsFor(a,b){ return QUESTIONS[qKey(a,b)]||QUESTIONS[qKey(b,a)]||["Будет ли забит гол в первом тайме?","Забьют ли обе команды?","Будет ли тотал больше 2.5 голов?",`Сможет ли ${teamRu(a)} не проиграть?`,"Кто станет игроком матча?"]; }
-function extraPredictions(a,b){ const qs=questionsFor(a,b); return `<div class="extra"><h3>Дополнительные прогнозы</h3>${qs.map((q,i)=>`<div class="question">${i+1}. ${q}</div>${answersFor(q,a,b).map(ans=>{const k=key(a,b,q); const active=state.answers[k]?.answer===ans || (ans==='＋ Выбрать игрока'&&state.answers[k]); const label=(ans==='＋ Выбрать игрока'&&state.answers[k])?state.answers[k].answer:ans; const pts=pointsForQuestion(q); return `<button class="answer ${active?'active':''}" data-a="${a}" data-b="${b}" data-q="${q}" data-ans="${ans}" data-pts="${pts}">${label} +${pts} очков</button>`;}).join('')}`).join('')}</div>`; }
+function questionsFor(a, b, round = null) {
+  const key1 = `${a}__${b}`;
+  const key2 = `${b}__${a}`;
+
+  const generic = window.GENERIC_QUESTIONS || [];
+
+  const playersA =
+  (window.SPECIAL_PLAYERS?.[a] ||
+   LINEUPS[a] ||
+   []).slice(0, 8);
+
+  const playersB =
+  (window.SPECIAL_PLAYERS?.[b] ||
+   LINEUPS[b] ||
+   []).slice(0, 8);
+
+  const playerQuestions = [
+  ...playersA.map(p => `Забьёт ли ${p}?`),
+  ...playersB.map(p => `Забьёт ли ${p}?`),
+
+  ...playersA.map(p => `Сделает ли ${p} гол+пас?`),
+  ...playersB.map(p => `Сделает ли ${p} гол+пас?`)
+];
+
+const teamQuestions = [
+  `Сможет ли ${teamRu(a)} победить?`,
+  `Сможет ли ${teamRu(b)} победить?`,
+
+  `Забьёт ли ${teamRu(a)} больше одного гола?`,
+  `Забьёт ли ${teamRu(b)} больше одного гола?`,
+
+  `Сохранит ли ${teamRu(a)} ворота сухими?`,
+  `Сохранит ли ${teamRu(b)} ворота сухими?`,
+
+  "Кто станет игроком матча?",
+
+  ...playerQuestions
+];
+
+  const playoffQuestions = round ? [
+    `Пройдёт ли ${teamRu(a)} дальше?`,
+    `Пройдёт ли ${teamRu(b)} дальше?`,
+    "Будет ли дополнительное время?",
+    "Будут ли пенальти?"
+  ] : [];
+
+  const pool =
+    QUESTION_POOLS[key1] ||
+    QUESTION_POOLS[key2] ||
+    QUESTIONS[key1] ||
+    QUESTIONS[key2] ||
+    [
+      ...generic,
+      ...teamQuestions,
+      ...playoffQuestions
+    ];
+
+  const storageKey = round
+    ? `wc_questions_playoff_${round}_${key1}`
+    : `wc_questions_group_${key1}`;
+
+  const saved = localStorage.getItem(storageKey);
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === 5) {
+        return parsed;
+      }
+    } catch (e) {}
+  }
+
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, 5);
+
+  localStorage.setItem(storageKey, JSON.stringify(selected));
+
+  return selected;
+}
+function extraPredictions(a, b, round = null) {
+  const qs = questionsFor(a, b, round); return `<div class="extra"><h3>Дополнительные прогнозы</h3>${qs.map((q,i)=>`<div class="question">${i+1}. ${q}</div>${answersFor(q,a,b).map(ans=>{const k=key(a,b,q); const active=state.answers[k]?.answer===ans || (ans==='＋ Выбрать игрока'&&state.answers[k]); const label=(ans==='＋ Выбрать игрока'&&state.answers[k])?state.answers[k].answer:ans; const pts=pointsForQuestion(q); return `<button class="answer ${active?'active':''}" data-a="${a}" data-b="${b}" data-q="${q}" data-ans="${ans}" data-pts="${pts}">${label} +${pts} очков</button>`;}).join('')}`).join('')}</div>`; }
 function answersFor(q,a,b){ const s=q.toLowerCase(); if(s.includes('кто станет игроком')||s.includes('лучший игрок')) return ['＋ Выбрать игрока']; if(s.includes('какая команда')) return [teamRu(a),teamRu(b)]; if(s.includes('кто забьёт первый')||s.includes('кто откроет')) return [teamRu(a),teamRu(b),'Без гола']; return ['Да','Нет']; }
 function pointsForQuestion(q){ const s=q.toLowerCase(); if(s.includes('игроком матча')) return 20; if(s.includes('кто забьёт')||s.includes('кто откроет')) return 12; if(s.includes('какая команда')) return 10; return 8; }
 function pointsForDate(date){ return Object.values(state.answers).filter(x=>x.date===date).reduce((a,b)=>a+b.points,0); }
@@ -147,10 +358,65 @@ function bindInputs(){
   document.querySelectorAll('input[data-kind]').forEach(inp=>inp.onclick=()=>{activeScoreTarget=inp;openNumpad();});
   document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>{ const a=btn.dataset.a,b=btn.dataset.b,q=btn.dataset.q,ans=btn.dataset.ans,pts=+btn.dataset.pts; if(ans==='＋ Выбрать игрока') return openPlayerSelect(a,b,q,pts); state.answers[key(a,b,q)]={answer:ans,points:pts,date:selectedPredictTab}; save(); renderPredict(); });
 }
-function openPlayerSelect(a,b,q,pts){ const modal=document.createElement('div'); modal.className='modal'; const players=(team)=>LINEUPS[team]||Array.from({length:11},(_,i)=>`Игрок ${i+1}`); modal.innerHTML=`<div class="sheet"><h3>Выбор игрока матча</h3><div class="question">${q}</div><div class="sub">${teamRu(a)}</div>${players(a).map(p=>`<button class="player" data-team="${a}" data-player="${p}">${p}</button>`).join('')}<div class="sub">${teamRu(b)}</div>${players(b).map(p=>`<button class="player" data-team="${b}" data-player="${p}">${p}</button>`).join('')}<button class="close">Закрыть</button></div>`; document.body.appendChild(modal); modal.querySelector('.close').onclick=()=>modal.remove(); modal.querySelectorAll('.player').forEach(x=>x.onclick=()=>{state.answers[key(a,b,q)]={answer:`${x.dataset.player} (${teamRu(x.dataset.team)})`,points:pts,date:selectedPredictTab}; save(); modal.remove(); renderPredict();}); }
+function openPlayerSelect(a,b,q,pts){ const modal=document.createElement('div'); modal.className='modal'; const players = (team) =>
+  SPECIAL_PLAYERS[team] ||
+  LINEUPS[team] ||
+  Array.from({ length: 11 }, (_, i) => `Игрок ${i + 1}`); modal.innerHTML=`<div class="sheet"><h3>Выбор игрока матча</h3><div class="question">${q}</div><div class="sub">${teamRu(a)}</div>${players(a).map(p=>`<button class="player" data-team="${a}" data-player="${p}">${p}</button>`).join('')}<div class="sub">${teamRu(b)}</div>${players(b).map(p=>`<button class="player" data-team="${b}" data-player="${p}">${p}</button>`).join('')}<button class="close">Закрыть</button></div>`; document.body.appendChild(modal); modal.querySelector('.close').onclick=()=>modal.remove(); modal.querySelectorAll('.player').forEach(x=>x.onclick=()=>{state.answers[key(a,b,q)]={answer:`${x.dataset.player} (${teamRu(x.dataset.team)})`,points:pts,date:selectedPredictTab}; save(); modal.remove(); renderPredict();}); }
 function openNumpad(){document.querySelector('#numpad').classList.remove('hidden');}
 function closeNumpad(){document.querySelector('#numpad').classList.add('hidden');activeScoreTarget=null;save();renderPredict();}
 document.querySelectorAll('#numpad button').forEach(btn=>btn.onclick=()=>{ if(!activeScoreTarget)return; const action=btn.dataset.action, v=btn.textContent.trim(); if(action==='done')return closeNumpad(); let arr; if(activeScoreTarget.dataset.kind==='group'){arr=state.groupScores[activeScoreTarget.dataset.key];} else {const r=activeScoreTarget.dataset.round,m=activeScoreTarget.dataset.match; state.koScores[r] ||= {}; state.koScores[r][m] ||= ["", "", "", ""]; arr=state.koScores[r][m];} const idx=+activeScoreTarget.dataset.index; if(action==='clear')arr[idx]=''; else if(action==='back')arr[idx]=arr[idx].slice(0,-1); else if(/^\d$/.test(v)&&arr[idx].length<2)arr[idx]+=v; activeScoreTarget.value=arr[idx]; save(); });
+async function renderLeaderboard(){
+
+  const user = window.USER || {};
+  const myName = user.username ? `@${user.username}` : user.firstName || "Guest";
+
+  content.innerHTML = `
+    <section class="screen">
+      <div class="title">Leaderboard</div>
+      <div class="card">Загрузка...</div>
+    </section>
+  `;
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/leaderboard`);
+    const data = await res.json();
+    const leaders = data.leaderboard || [];
+
+    content.innerHTML = `
+      <section class="screen">
+        <div class="title">Leaderboard</div>
+
+        <div class="card hero">
+          <div class="small">YOUR PROFILE</div>
+          ${user.photo ? `<img class="profile-avatar" src="${user.photo}">` : `<div class="profile-avatar empty"></div>`}
+          <div class="big">${myName}</div>
+          <div class="host">0 points</div>
+        </div>
+
+        <div class="card">
+          ${
+            leaders.length
+              ? leaders.map((u,i)=>`
+                <div class="leader-row ${u.id === user.id ? 'active' : ''}">
+                  <div class="leader-rank">#${i+1}</div>
+                  <div class="leader-name">${u.username ? '@' + u.username : u.first_name || 'Guest'}</div>
+                  <div class="leader-points">${u.total_points || 0}</div>
+                </div>
+              `).join("")
+              : `<div class="empty-board">Пока нет игроков</div>`
+          }
+        </div>
+      </section>
+    `;
+  } catch (e) {
+    content.innerHTML = `
+      <section class="screen">
+        <div class="title">Leaderboard</div>
+        <div class="card">Ошибка загрузки leaderboard</div>
+      </section>
+    `;
+  }
+}
 function renderPlayoffs(){ const rounds=buildRounds(); content.innerHTML=`<section class="screen"><div class="title">Playoff Bracket</div><div class="pills">${ROUND_NAMES.map(r=>`<button class="pill" data-roundbtn="${r}">${r}</button>`).join('')}</div><div class="bracket-scroll" id="bracketScroll">${ROUND_NAMES.map(r=>`<div class="bracket-stage" data-stage="${r}"><div class="sub">${r}</div>${(rounds[r]||[]).map((p,i)=>koBracketCard(r,i,p[0],p[1])).join('')}</div>`).join('')}</div></section>`; document.querySelectorAll('[data-roundbtn]').forEach(b=>b.onclick=()=>document.querySelector(`[data-stage="${b.dataset.roundbtn}"]`).scrollIntoView({behavior:'smooth',inline:'start'})); }
 function koBracketCard(r,i,a,b){ const w=koWinner(r,i,a,b); return `<div class="bracket-card"><div class="card ko-card-main"><div class="ko-line ${w&&w.name===a.name?'active':''}">${a.code?`<img class="flag" src="${flagSrc(a.code)}">`:'<div class="empty-dot"></div>'}<span>${a.name}</span></div><div class="divider"></div><div class="ko-line ${w&&w.name===b.name?'active':''}">${b.code?`<img class="flag" src="${flagSrc(b.code)}">`:'<div class="empty-dot"></div>'}<span>${b.name}</span></div></div><div class="winner-preview">${w?(w.code?`<img class="flag" src="${flagSrc(w.code)}">`:'')+`<span>${w.name}</span>`:'<span>winner →</span>'}</div></div>`; }
 function enableDragScroll(){document.querySelectorAll('.pills,.nav,.round-pager').forEach(el=>{if(el.dataset.dragEnabled)return;el.dataset.dragEnabled='1';let down=false,startX=0,left=0;el.addEventListener('mousedown',e=>{down=true;startX=e.pageX-el.offsetLeft;left=el.scrollLeft;});el.addEventListener('mouseleave',()=>down=false);el.addEventListener('mouseup',()=>down=false);el.addEventListener('mousemove',e=>{if(!down)return;e.preventDefault();el.scrollLeft=left-(e.pageX-el.offsetLeft-startX)*1.4;});el.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){el.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});});}
