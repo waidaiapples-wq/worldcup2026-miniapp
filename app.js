@@ -5,7 +5,7 @@ const SUPABASE_URL =
 
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6bWh3dGdrbG9ubW94bWJhcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMDgyMjEsImV4cCI6MjA5NDU4NDIyMX0.NtJyCzS516ECAldWurUv2b6swBAm3j_cb4hoRusnxNg";
-const BACKEND_URL = "http://127.0.0.1:3000";
+const BACKEND_URL = "https://worldcup2026-backend.onrender.com";
 let db = null;
 
 window.addEventListener("load", () => {
