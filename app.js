@@ -99,70 +99,54 @@ state.groupScores ||= {};
 state.koScores ||= {"1/16":{},"1/8":{},"1/4":{},"1/2":{},"Final":{}};
 state.answers ||= {};
 
-function save(){
-  localStorage.setItem("wc2026_state_v1", JSON.stringify(state));
-  savePredictionsToSupabase();
-}
-let saveTimer = null;
+async function save(){
 
-function savePredictionsToSupabase(){
+  localStorage.setItem(
+    "wc2026_state_v1",
+    JSON.stringify(state)
+  );
 
-  if (!USER.id || !db) return;
+  if (!window.USER?.id) return;
 
-  clearTimeout(saveTimer);
+  try {
 
-  saveTimer = setTimeout(async () => {
+    const predictions = [];
 
-    const rows = [];
+    Object.entries(state.groupScores || {}).forEach(([k,v]) => {
 
-    Object.entries(state.groupScores || {}).forEach(([matchKey, score]) => {
+      const parts = k.split("__");
 
-      const parts = matchKey.split("__");
-
-      const team1 = parts[1] || "";
-      const team2 = parts[2] || "";
-
-      rows.push({
-        user_id: USER.id,
-        match_key: matchKey,
-        team1,
-        team2,
-        score1: score[0] === "" ? null : Number(score[0]),
-        score2: score[1] === "" ? null : Number(score[1]),
-        answers: getAnswersForMatch(team1, team2),
-        points: 0
+      predictions.push({
+        match_key: k,
+        team1: parts[1],
+        team2: parts[2],
+        score1: v[0],
+        score2: v[1],
+        answers: {},
       });
 
     });
 
-    const { error } = await db
-      .from("predictions")
-      .upsert(rows, {
-        onConflict: "user_id,match_key"
-      });
+    await fetch(`${BACKEND_URL}/save-predictions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: window.USER.id,
+        predictions
+      })
+    });
 
-    if (error) {
-      console.error("SUPABASE PREDICTIONS ERROR", error);
-    } else {
-      console.log("PREDICTIONS SAVED");
-    }
+    console.log("PREDICTIONS SAVED");
 
-  }, 700);
+  } catch (e) {
+
+    console.error("SAVE ERROR", e);
+
+  }
 }
-function getAnswersForMatch(team1, team2){
-  const result = {};
 
-  Object.entries(state.answers || {}).forEach(([answerKey, value]) => {
-    const parts = answerKey.split("__");
-
-    if (parts[0] === team1 && parts[1] === team2) {
-      const question = parts.slice(2).join("__");
-      result[question] = value;
-    }
-  });
-
-  return result;
-}
 function teamName(t){ return Array.isArray(t) ? t[0] : (t.name || t); }
 function teamCode(t){ return Array.isArray(t) ? t[1] : (t.code || ""); }
 function teamRu(t){ return TEAM_RU[t] || t; }
