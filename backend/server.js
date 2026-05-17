@@ -61,6 +61,45 @@ app.get("/leaderboard", async (req, res) => {
     leaderboard: data
   });
 });
+app.post("/save-predictions", async (req, res) => {
+  const { userId, predictions } = req.body;
+
+  if (!userId || !Array.isArray(predictions)) {
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid payload"
+    });
+  }
+
+  const rows = predictions.map(p => ({
+    user_id: userId,
+    match_key: p.match_key,
+    team1: p.team1,
+    team2: p.team2,
+    score1: p.score1,
+    score2: p.score2,
+    answers: p.answers || {},
+    points: 0
+  }));
+
+  const { error } = await supabase
+    .from("predictions")
+    .upsert(rows, {
+      onConflict: "user_id,match_key"
+    });
+
+  if (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
+
+  res.json({
+    status: "ok",
+    saved: rows.length
+  });
+});
 app.listen(PORT, () => {
   console.log(`Backend started on port ${PORT}`);
 });
