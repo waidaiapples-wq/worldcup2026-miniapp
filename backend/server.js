@@ -15,15 +15,6 @@ const MATCH_TIMES = {
   "Group A__USA__Japan": "2026-06-11T22:00:00Z"
 };
 
-const WC_MATCHES = [
-  {
-    match_key: "Group A__Mexico__South Africa",
-    group_name: "Group A",
-    team1: "Mexico",
-    team2: "South Africa",
-    match_date: "2026-06-11T19:00:00Z"
-  }
-];
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -124,7 +115,7 @@ app.get("/live-matches", async (req, res) => {
   try {
 
     const response = await fetch(
-      "https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2025-2026"
+      "https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026-2027"
     );
 
     const data = await response.json();
@@ -270,27 +261,20 @@ app.get("/match-results", async (req, res) => {
     results: data
   });
 });
-app.get("/match-results", async (req, res) => {
-  const { data, error } = await supabase
-    .from("match_results")
-    .select("*");
+app.post("/sync-matches", async (req, res) => {
 
-  if (error) {
-    return res.status(500).json({
+  const { matches } = req.body;
+
+  if (!Array.isArray(matches)) {
+    return res.status(400).json({
       status: "error",
-      message: error.message
+      message: "Matches array required"
     });
   }
 
-  res.json({
-    status: "ok",
-    results: data
-  });
-});
-app.post("/sync-matches", async (req, res) => {
   const { data, error } = await supabase
     .from("matches")
-    .upsert(WC_MATCHES, {
+    .upsert(matches, {
       onConflict: "match_key"
     })
     .select();
@@ -306,7 +290,10 @@ app.post("/sync-matches", async (req, res) => {
     status: "ok",
     synced: data.length
   });
+
 });
+
+
 app.listen(PORT, () => {
   console.log(`Backend started on port ${PORT}`);
 });
