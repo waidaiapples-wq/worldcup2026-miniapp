@@ -28,6 +28,7 @@ window.addEventListener("load", async () => {
   }
 
   await loadMatchResults();
+  await syncMatchesToBackend();
 
   render();
 
@@ -175,6 +176,31 @@ function groupLetter(g){ return g.replace("Group ", ""); }
 function key(...parts){ return parts.join("__"); }
 function qKey(a,b){ return `${a}__${b}`; }
 function getMatches(){ return Object.entries(SCHEDULE).flatMap(([date, matches]) => matches.map(m => ({date, group:m[0], team1:{name:m[1][0],code:m[1][1]}, team2:{name:m[2][0],code:m[2][1]}}))); }
+async function syncMatchesToBackend(){
+  const matches = getMatches().map(m => ({
+    match_key: key(m.group, m.team1.name, m.team2.name),
+    group_name: m.group,
+    team1: m.team1.name,
+    team2: m.team2.name,
+    match_date: null,
+    status: "scheduled"
+  }));
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/sync-matches`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ matches })
+    });
+
+    const data = await res.json();
+    console.log("MATCHES SYNCED", data);
+  } catch (e) {
+    console.error("MATCH SYNC ERROR", e);
+  }
+}
 function matchTime(date, idx, count){ const slots={1:["22:00 МСК"],2:["19:00 МСК","22:00 МСК"],4:["16:00 МСК","19:00 МСК","22:00 МСК","01:00 МСК"],8:["13:00 МСК","16:00 МСК","19:00 МСК","22:00 МСК","01:00 МСК","04:00 МСК","07:00 МСК","10:00 МСК"]}; return (slots[count]||slots[4])[idx % (slots[count]||slots[4]).length]; }
 function ensureGroupScores(){ getMatches().forEach(m=>{ const k=key(m.group,m.team1.name,m.team2.name); state.groupScores[k] ||= ["",""]; }); }
 ensureGroupScores();
