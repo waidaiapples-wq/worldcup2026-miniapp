@@ -134,6 +134,97 @@ app.get("/live-matches", async (req, res) => {
   }
 
 });
+function calcScorePoints(pred1, pred2, real1, real2) {
+  if (pred1 === null || pred2 === null) return 0;
+
+  let points = 0;
+
+  if (pred1 === real1 && pred2 === real2) {
+    points += 30;
+  }
+
+  const predDiff = pred1 - pred2;
+  const realDiff = real1 - real2;
+
+  if (predDiff === realDiff && predDiff !== 0) {
+    points += 10;
+  }
+
+  const predResult = predDiff > 0 ? "home" : predDiff < 0 ? "away" : "draw";
+  const realResult = realDiff > 0 ? "home" : realDiff < 0 ? "away" : "draw";
+
+  if (predResult === realResult) {
+    points += 10;
+  }
+
+  return points;
+}
+app.post("/calculate-points", async (req, res) => {
+
+  const {
+    match_key,
+    real1,
+    real2
+  } = req.body;
+
+  try {
+
+    const { data: predictions, error } = await supabase
+      .from("predictions")
+      .select("*")
+      .eq("match_key", match_key);
+
+    if (error) {
+      throw error;
+    }
+
+    for (const p of predictions) {
+
+      const pts = calcScorePoints(
+        p.score1,
+        p.score2,
+        real1,
+        real2
+      );
+
+      await supabase
+        .from("predictions")
+        .update({
+          points: pts
+        })
+        .eq("id", p.id);
+
+      const { data: user } = await supabase
+        .from("users")
+        .select("total_points")
+        .eq("id", p.user_id)
+        .single();
+
+      const total = (user?.total_points || 0) + pts;
+
+      await supabase
+        .from("users")
+        .update({
+          total_points: total
+        })
+        .eq("id", p.user_id);
+    }
+
+    res.json({
+      status: "ok",
+      updated: predictions.length
+    });
+
+  } catch (e) {
+
+    res.status(500).json({
+      status: "error",
+      message: e.message
+    });
+
+  }
+
+});
 app.listen(PORT, () => {
   console.log(`Backend started on port ${PORT}`);
 });
