@@ -162,12 +162,23 @@ function calcScorePoints(pred1, pred2, real1, real2) {
 app.post("/calculate-points", async (req, res) => {
 
   const {
-    match_key,
-    real1,
-    real2
-  } = req.body;
+  match_key,
+  real1,
+  real2
+} = req.body;
 
-  try {
+try {
+
+  await supabase
+    .from("match_results")
+    .upsert({
+      match_key,
+      team1: match_key.split("__")[1],
+      team2: match_key.split("__")[2],
+      score1: real1,
+      score2: real2,
+      status: "finished"
+    });
 
     const { data: predictions, error } = await supabase
       .from("predictions")
@@ -210,7 +221,14 @@ app.post("/calculate-points", async (req, res) => {
         .eq("id", p.user_id);
     }
 
-    res.json({
+    await supabase
+  .from("predictions")
+  .update({
+    locked: true
+  })
+  .eq("match_key", match_key);
+  
+  res.json({
       status: "ok",
       updated: predictions.length
     });
@@ -224,6 +242,40 @@ app.post("/calculate-points", async (req, res) => {
 
   }
 
+});
+app.get("/match-results", async (req, res) => {
+  const { data, error } = await supabase
+    .from("match_results")
+    .select("*");
+
+  if (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
+
+  res.json({
+    status: "ok",
+    results: data
+  });
+});
+app.get("/match-results", async (req, res) => {
+  const { data, error } = await supabase
+    .from("match_results")
+    .select("*");
+
+  if (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
+
+  res.json({
+    status: "ok",
+    results: data
+  });
 });
 app.listen(PORT, () => {
   console.log(`Backend started on port ${PORT}`);
