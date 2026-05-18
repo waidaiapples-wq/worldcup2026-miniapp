@@ -8,7 +8,7 @@ const SUPABASE_KEY =
 const BACKEND_URL = "https://worldcup2026-backend.onrender.com";
 let db = null;
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
 
   if (window.supabase) {
 
@@ -26,6 +26,8 @@ window.addEventListener("load", () => {
     console.error("SUPABASE NOT FOUND");
 
   }
+
+  await loadMatchResults();
 
   render();
 
@@ -93,6 +95,7 @@ let selectedPredictTab = Object.keys(SCHEDULE)[0] || "11 Jun";
 let groupsScrollX = 0;
 let datesScrollX = 0;
 let activeScoreTarget = null;
+let matchResults = {};
 
 const state = JSON.parse(localStorage.getItem("wc2026_state_v1") || "{}");
 state.groupScores ||= {};
@@ -144,6 +147,22 @@ async function save(){
 
     console.error("SAVE ERROR", e);
 
+  }
+}
+
+async function loadMatchResults(){
+  try {
+    const res = await fetch(`${BACKEND_URL}/match-results`);
+    const data = await res.json();
+
+    matchResults = {};
+
+    (data.results || []).forEach(r => {
+      matchResults[r.match_key] = r;
+    });
+
+  } catch (e) {
+    console.error("MATCH RESULTS LOAD ERROR", e);
   }
 }
 
@@ -249,10 +268,61 @@ if (pills) {
 }
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{selectedPredictTab=b.dataset.tab;renderPredict();setTimeout(enableDragScroll,0);}); bindInputs();
 }
-function matchCard(m){ const k=key(m.group,m.team1.name,m.team2.name); const s=state.groupScores[k]||["",""]; const filled=safeInt(s[0])!==null&&safeInt(s[1])!==null;
-  return `<div class="card"><div class="match-head">${m.group}</div><div class="match-time">${matchTime(m.date,m.idx,m.count)}</div><div class="match-row"><div class="team"><img class="flag" src="${flagSrc(m.team1.code)}"><div>${m.team1.name}</div></div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="group" data-key="${k}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="group" data-key="${k}" data-index="1"></div><div class="hint">Нажми на счёт</div></div><div class="team"><img class="flag" src="${flagSrc(m.team2.code)}"><div>${m.team2.name}</div></div></div><div class="save">Сохраняется автоматически</div>${filled?extraPredictions(m.team1.name,m.team2.name):''}</div>`; }
-function koPredictCard(r,i,a,b){ state.koScores[r] ||= {}; state.koScores[r][i] ||= ["", "", "", ""]; const s=state.koScores[r][i]; const draw=safeInt(s[0])!==null&&safeInt(s[0])===safeInt(s[1]);
-  return `<div class="card"><div class="match-head">${r} • Match ${i+1}</div><div class="match-row"><div class="team">${teamVisual(a,62)}</div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="1"></div><div class="hint">Нажми на счёт</div>${draw?`<div class="pens"><input readonly placeholder="•" value="${s[2]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="2"><span class="dash">-</span><input readonly placeholder="•" value="${s[3]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="3"></div>`:''}</div><div class="team">${teamVisual(b,62)}</div></div><div class="save">Сохраняется автоматически</div>${safeInt(s[0])!==null&&safeInt(s[1])!==null?extraPredictions(a.name, b.name, r):''}</div>`; }
+function matchCard(m){
+  const k = key(m.group,m.team1.name,m.team2.name);
+  const s = state.groupScores[k] || ["",""];
+  const result = matchResults[k];
+  const finished = result?.status === "finished";
+
+  const shownScore1 = finished ? result.score1 : s[0];
+  const shownScore2 = finished ? result.score2 : s[1];
+
+  const filled = safeInt(s[0]) !== null && safeInt(s[1]) !== null;
+
+  return `<div class="card">
+    <div class="match-head">${m.group}</div>
+    <div class="match-time">${finished ? "Матч завершён" : matchTime(m.date,m.idx,m.count)}</div>
+
+    <div class="match-row">
+      <div class="team">
+        <img class="flag" src="${flagSrc(m.team1.code)}">
+        <div>${m.team1.name}</div>
+      </div>
+
+      <div>
+        <div class="score">
+          <input readonly ${finished ? "disabled" : ""} placeholder="•" value="${shownScore1}" data-kind="group" data-key="${k}" data-index="0">
+          <span class="dash">-</span>
+          <input readonly ${finished ? "disabled" : ""} placeholder="•" value="${shownScore2}" data-kind="group" data-key="${k}" data-index="1">
+        </div>
+
+        <div class="hint">
+          ${finished ? `Твой прогноз: ${s[0] || "•"} - ${s[1] || "•"}` : "Нажми на счёт"}
+        </div>
+      </div>
+
+      <div class="team">
+        <img class="flag" src="${flagSrc(m.team2.code)}">
+        <div>${m.team2.name}</div>
+      </div>
+    </div>
+
+    <div class="save">
+      ${finished ? "Результат закреплён" : "Сохраняется автоматически"}
+    </div>
+
+    ${!finished && filled ? extraPredictions(m.team1.name,m.team2.name) : ""}
+  </div>`;
+}
+function koPredictCard(r,i,a,b){
+  state.koScores[r] ||= {};
+  state.koScores[r][i] ||= ["", "", "", ""];
+
+  const s = state.koScores[r][i];
+  const draw = safeInt(s[0]) !== null && safeInt(s[0]) === safeInt(s[1]);
+
+  return `<div class="card"><div class="match-head">${r} • Match ${i+1}</div><div class="match-row"><div class="team">${teamVisual(a,62)}</div><div><div class="score"><input readonly placeholder="•" value="${s[0]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="0"><span class="dash">-</span><input readonly placeholder="•" value="${s[1]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="1"></div><div class="hint">Нажми на счёт</div>${draw ? `<div class="pens"><input readonly placeholder="•" value="${s[2]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="2"><span class="dash">-</span><input readonly placeholder="•" value="${s[3]}" data-kind="ko" data-round="${r}" data-match="${i}" data-index="3"></div>` : ""}</div><div class="team">${teamVisual(b,62)}</div></div><div class="save">Сохраняется автоматически</div>${safeInt(s[0]) !== null && safeInt(s[1]) !== null ? extraPredictions(a.name, b.name, r) : ""}</div>`;
+}
 function teamVisual(t,size=30){ return `${t.code?`<img class="flag" style="width:${size}px;height:${size}px" src="${flagSrc(t.code)}">`:`<div class="empty-dot" style="width:${size}px;height:${size}px"></div>`}<div>${t.name}</div>`; }
 function questionsFor(a, b, round = null) {
   const key1 = `${a}__${b}`;
