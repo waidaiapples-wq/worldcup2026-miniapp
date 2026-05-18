@@ -15,6 +15,16 @@ const MATCH_TIMES = {
   "Group A__USA__Japan": "2026-06-11T22:00:00Z"
 };
 
+const WC_MATCHES = [
+  {
+    match_key: "Group A__Mexico__South Africa",
+    group_name: "Group A",
+    team1: "Mexico",
+    team2: "South Africa",
+    match_date: "2026-06-11T19:00:00Z"
+  }
+];
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
@@ -275,6 +285,26 @@ app.get("/match-results", async (req, res) => {
   res.json({
     status: "ok",
     results: data
+  });
+});
+app.post("/sync-matches", async (req, res) => {
+  const { data, error } = await supabase
+    .from("matches")
+    .upsert(WC_MATCHES, {
+      onConflict: "match_key"
+    })
+    .select();
+
+  if (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
+
+  res.json({
+    status: "ok",
+    synced: data.length
   });
 });
 app.listen(PORT, () => {
